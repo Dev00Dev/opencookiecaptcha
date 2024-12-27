@@ -1,0 +1,145 @@
+//Place this page on your server and redirect to it when you need to do a check. The "goopics" images are here just to let you test the code.
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification Requise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+        header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        header a {
+            text-decoration: none;
+        }
+        header img {
+            width: 100px;
+        }
+        .side-container {
+            max-width: 500px;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .message {
+            margin-bottom: 30px;
+            font-size: 18px;
+            color: #333;
+        }
+        .captcha {
+            margin-bottom: 30px;
+        }
+        .captcha input {
+            padding: 12px;
+            font-size: 16px;
+            width: calc(100% - 24px);
+            margin-top: 10px;
+        }
+        .captcha button {
+            padding: 12px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .captcha button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="https://verificationpagelink" target="_blank">
+            <img src="https://logoimage" alt="Logo Goopics">
+        </a>
+    </header>
+    <div class="side-container">
+        <div class="message">Our automated verification systems have detected unusual activity. We want to make sure you are not a robot. Please complete the following test:</div>
+        <div class="captcha">
+            <img id="captcha-image" src="" alt="Captcha">
+            <input type="text" id="captcha-input" placeholder="Entrez le texte du CAPTCHA">
+            <button id="submit-button">Vérifier</button>
+            <div class="error" id="error-message"></div>
+        </div>
+    </div>
+
+    <script>
+        let attemptsLeft = 4;
+        const captchaImages = [
+            { src: "https://i.goopics.net/tkf47v.png", text: "7" },
+            { src: "https://i.goopics.net/j8hotg.png", text: "red" },
+            { src: "https://i.goopics.net/6fp1lm.png", text: "1124" },
+            { src: "https://i.goopics.net/bypqtk.png", text: "15" },
+            { src: "https://i.goopics.net/ye8swe.png", text: "cat" },
+            { src: "https://i.goopics.net/bqi943.png", text: "orange" }
+        ];
+        const randomCaptcha = captchaImages[Math.floor(Math.random() * captchaImages.length)];
+
+        const captchaImage = document.getElementById('captcha-image');
+        const captchaInput = document.getElementById('captcha-input');
+        const errorMessage = document.getElementById('error-message');
+        const submitButton = document.getElementById('submit-button');
+
+        captchaImage.src = randomCaptcha.src;
+
+        // Gestion des cookies
+        function setCookie(name, value, hours) {
+            const date = new Date();
+            date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        if (getCookie('captchaValidated') === 'true') {
+            window.location.href = "https://homepage"; 
+        }
+
+        submitButton.addEventListener('click', () => {
+            const userInput = captchaInput.value;
+
+            if (userInput === randomCaptcha.text) {
+                setCookie('captchaValidated', 'true', 3); 
+                window.location.href = "https://homepage"; 
+            } else {
+                attemptsLeft--;
+                if (attemptsLeft > 0) {
+                    errorMessage.textContent = `Please try again. Remaining attempts : ${attemptsLeft}`;
+                } else {
+                    submitButton.disabled = true;
+                    captchaInput.disabled = true;
+                    errorMessage.textContent = "Too many failed attempts. Please try again.";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
